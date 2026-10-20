@@ -30,3 +30,14 @@ body {
     background-color: var(--color-secondary);
     color: white;
 }
+
+.footer {
+    display: flex;
+    justify-content: center;
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.footer a {
+    color: #7ba58d;
+}
