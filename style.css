@@ -1,0 +1,32 @@
+:root {
+    --color-primary: #f8ebbe;
+    --color-secondary: #2a0308;
+    --color-terciario: #924f1b;
+}
+
+body {
+    font-family: "Fira", sans-serif;
+    background-color: var(--color-primary);
+}
+
+.navbar {
+    display: flex;
+    font-size: 30px;
+    border-bottom: 1px solid;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: black;
+    padding: 20px;
+}
+
+.navbar a:hover {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.navbar a.active {
+    background-color: var(--color-secondary);
+    color: white;
+}
