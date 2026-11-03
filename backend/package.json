@@ -1,0 +1,22 @@
+{
+  "name": "ricky-fort-merch-backend",
+  "version": "1.0.0",
+  "description": "Backend para el sistema de merch del comandante",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/intro-camejo/ricky-fort-merch.git"
+  },
+  "author": "intro-camejo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/intro-camejo/ricky-fort-merch/issues"
+  },
+  "homepage": "https://github.com/intro-camejo/ricky-fort-merch#readme",
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}
