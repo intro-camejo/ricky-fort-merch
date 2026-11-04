@@ -147,6 +147,31 @@ app.post('/products', (req, res) => {
   res.status(201).json(new_product);
 });
 
+app.delete('/products/:id', (req, res) => {
+  const product_id = Number(req.params.id);
+
+  if (isNaN(product_id)) {
+    res.sendStatus(400);
+    return;
+  }
+
+  if (!Number.isInteger(product_id)) {
+    res.sendStatus(400);
+    return;
+  }
+
+  const index = products.findIndex((p) => {
+    return p.id === product_id;
+  });
+
+  if (index < 0) {
+    res.sendStatus(404)
+  }
+
+  products.splice(index, 1);
+  res.send(200);
+});
+
 app.listen(port, () => {
   console.log(`Backend levantado en http://localhost:${port}`);
 });

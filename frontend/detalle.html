@@ -34,7 +34,7 @@
             const id = searchParams.get("id");
             console.log(id);
             // 2. pedirle al servidor info de este producto y pasarla a json
-            const data = await fetch(`https://intro.bilbao.ar/products/${id}`);
+            const data = await fetch(`http://localhost:3000/products/${id}`);
             const producto = await data.json();
             console.log(producto);
             // 3. mostrar la info en el DOM
@@ -45,7 +45,7 @@
             let imagen = document.getElementById("producto-imagen");
             imagen.src = producto.image;
         }
-        
+
      </script>
 </body>
 </html>
