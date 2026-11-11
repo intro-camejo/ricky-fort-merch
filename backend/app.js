@@ -1,5 +1,6 @@
-import express from 'express';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import { db } from "./db/pool.js";
 
 const app = express();
 const port = 3000;
@@ -7,169 +8,127 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const products = [
-    {
-        "id": 1,
-        "name": "Teclado Mecánico",
-        "price": 89.99,
-        "image": "https://picsum.photos/seed/keyboard/400/300"
-    },
-    {
-        "id": 2,
-        "name": "Mouse Inalámbrico",
-        "price": 29.5,
-        "image": "https://picsum.photos/seed/mouse/400/300"
-    },
-    {
-        "id": 3,
-        "name": "Taza de Café",
-        "price": 12,
-        "image": "https://picsum.photos/seed/mug/400/300"
-    },
-    {
-        "id": 4,
-        "name": "Mochila",
-        "price": 54.99,
-        "image": "https://picsum.photos/seed/backpack/400/300"
-    },
-    {
-        "id": 5,
-        "name": "Lámpara de Escritorio",
-        "price": 34.75,
-        "image": "https://picsum.photos/seed/lamp/400/300"
-    },
-    {
-        "id": 6,
-        "name": "Auriculares",
-        "price": 119,
-        "image": "https://picsum.photos/seed/headphones/400/300"
-    },
-    {
-        "id": 7,
-        "name": "Monitor 27 Pulgadas",
-        "price": 249.99,
-        "image": "https://picsum.photos/seed/monitor/400/300"
-    },
-    {
-        "id": 8,
-        "name": "Silla de Oficina",
-        "price": 179,
-        "image": "https://picsum.photos/seed/chair/400/300"
-    },
-    {
-        "id": 9,
-        "name": "Botella Térmica",
-        "price": 22.9,
-        "image": "https://picsum.photos/seed/bottle/400/300"
-    },
-    {
-        "id": 10,
-        "name": "Zapatillas Running",
-        "price": 95.5,
-        "image": "https://picsum.photos/seed/sneakers/400/300"
-    }
-];
+// Pendiente de repasar en clase: interaccion con db en POST, PUT y DELETE
 
-app.get('/products', (req, res) => {
-  res.json({
-    "results": products
-  });
+function parseId(texto) {
+  const id = Number(texto);
+
+  if (!Number.isInteger(id) || id < 1) {
+    return null;
+  }
+
+  return id;
+}
+
+function validarProducto(body) {
+  if (body === undefined) {
+    return "falta el body";
+  }
+
+  if (body.name === undefined || body.price === undefined || body.image === undefined) {
+    return "name, price e image son obligatorios";
+  }
+
+  if (typeof body.name !== "string" || body.name.trim().length < 3) {
+    return "name debe ser un texto de al menos 3 caracteres";
+  }
+
+  const price = Number(body.price);
+
+  if (isNaN(price) || price <= 0) {
+    return "price debe ser un número mayor a 0";
+  }
+
+  if (typeof body.image !== "string") {
+    return "image debe ser un texto";
+  }
+
+  return null;
+}
+
+app.get("/products", async (req, res) => {
+  const result = await db.query("SELECT * FROM products ORDER BY id");
+  res.json({ results: result.rows });
 });
 
-app.get('/products/:id', (req, res) => {
-  const product_id = Number(req.params.id);
+app.get("/products/:id", async (req, res) => {
+  const id = parseId(req.params.id);
 
-  if (isNaN(product_id)) {
+  if (id === null) {
     res.sendStatus(400);
     return;
   }
 
-  if (!Number.isInteger(product_id)) {
-    res.sendStatus(400);
-    return;
-  }
+  const result = await db.query("SELECT * FROM products WHERE id = $1", [id]);
 
-  // !(product_id >= 1 && product_id < products.length)
-  // !(product_id >= 1) || !(product_id < products.length)
-  // product_id < 1 || product_id >= products.length
-
-  // product es { "id": X, "name": "Y", ...}
-  // o...
-  // product es undefined
-  const product = products.find((p) => {
-    return p.id === product_id
-  });
-
-  if (product === undefined) {
+  if (result.rowCount === 0) {
     res.sendStatus(404);
     return;
   }
 
-  res.json(product);
+  res.json(result.rows[0]);
 });
 
-app.post('/products', (req, res) => {
-  console.log(req.body);
+app.post("/products", async (req, res) => {
+  const error = validarProducto(req.body);
 
-  if (req.body.name === undefined || req.body.price === undefined || req.body.image === undefined) {
-    res.status(400).send("name, price e image son obligatorios");
+  if (error !== null) {
+    res.status(400).send(error);
     return;
   }
 
-  const price = Number(req.body.price);
+  const result = await db.query(
+    "INSERT INTO products (name, price, image) VALUES ($1, $2, $3) RETURNING *",
+    [req.body.name, Number(req.body.price), req.body.image]
+  );
 
-  if (isNaN(price)) {
-    res.status(400).send("price debe ser un número");
-    return;
-  }
-
-  if (price <= 0) {
-    res.status(400).send("price debe ser mayor a 0");
-    return;
-  }
-
-  if (req.body.name.length < 3) {
-    res.status(400).send("name debe tener al menos 3 caracteres");
-    return;
-  }
-
-  const id = products[products.length - 1].id + 1;
-
-  const new_product = {
-    "id": id,
-    "name": req.body.name,
-    "price": req.body.price,
-    "image": req.body.image
-  };
-
-  products.push(new_product);
-
-  res.status(201).json(new_product);
+  res.status(201).json(result.rows[0]);
 });
 
-app.delete('/products/:id', (req, res) => {
-  const product_id = Number(req.params.id);
+app.put("/products/:id", async (req, res) => {
+  const id = parseId(req.params.id);
 
-  if (isNaN(product_id)) {
+  if (id === null) {
     res.sendStatus(400);
     return;
   }
 
-  if (!Number.isInteger(product_id)) {
+  const error = validarProducto(req.body);
+
+  if (error !== null) {
+    res.status(400).send(error);
+    return;
+  }
+
+  const result = await db.query(
+    "UPDATE products SET name = $1, price = $2, image = $3 WHERE id = $4 RETURNING *",
+    [req.body.name, Number(req.body.price), req.body.image, id]
+  );
+
+  if (result.rowCount === 0) {
+    res.sendStatus(404);
+    return;
+  }
+
+  res.json(result.rows[0]);
+});
+
+app.delete("/products/:id", async (req, res) => {
+  const id = parseId(req.params.id);
+
+  if (id === null) {
     res.sendStatus(400);
     return;
   }
 
-  const index = products.findIndex((p) => {
-    return p.id === product_id;
-  });
+  const result = await db.query("DELETE FROM products WHERE id = $1 RETURNING *", [id]);
 
-  if (index < 0) {
-    res.sendStatus(404)
+  if (result.rowCount === 0) {
+    res.sendStatus(404);
+    return;
   }
 
-  products.splice(index, 1);
-  res.send(200);
+  res.json(result.rows[0]);
 });
 
 app.listen(port, () => {

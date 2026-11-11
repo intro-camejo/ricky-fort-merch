@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ricky
+      POSTGRES_PASSWORD: comandante
+      POSTGRES_DB: merch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql
+      - ./db/schemas.sql:/docker-entrypoint-initdb.d/01-schemas.sql:ro
+      - ./db/seeds.sql:/docker-entrypoint-initdb.d/02-seeds.sql:ro
+
+volumes:
+  pg-data:
