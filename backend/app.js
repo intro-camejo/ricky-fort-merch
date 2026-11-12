@@ -1,8 +1,5 @@
 import express from "express";
 import cors from "cors";
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { fileURLToPath } from "url";
 import { db } from "./db/pool.js";
 
 const app = express();
@@ -10,142 +7,6 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-
-const openapi = swaggerJsdoc({
-  definition: {
-    openapi: "3.0.3",
-    info: {
-      title: "Ricky Fort Merch API",
-      version: "1.0.0",
-      description:
-        "API del merch del comandante. Sirve para listar, ver, crear, editar y borrar productos.\n\n" +
-        "**Códigos de respuesta que vas a ver:**\n" +
-        "- `200`: salió bien.\n" +
-        "- `201`: se creó un producto nuevo.\n" +
-        "- `400`: el pedido está mal armado (falta un campo, el nombre es muy corto, el precio no es mayor a 0, o el id no es un número entero positivo). El mensaje de error viene como texto, no como JSON.\n" +
-        "- `404`: no hay un producto con ese id.\n\n" +
-        "Para probar los endpoints desde esta página, usá **Try it out**.",
-    },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Servidor local",
-      },
-    ],
-    tags: [
-      {
-        name: "Productos",
-        description: "Operaciones sobre la tabla products",
-      },
-    ],
-  },
-  apis: [fileURLToPath(import.meta.url)],
-});
-
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
-
-/**
- * @openapi
- * components:
- *   parameters:
- *     ProductId:
- *       name: id
- *       in: path
- *       required: true
- *       description: Identificador del producto. Tiene que ser un número entero positivo.
- *       schema:
- *         type: integer
- *         minimum: 1
- *       example: 1
- *   schemas:
- *     Product:
- *       type: object
- *       required: [id, name, price, image]
- *       properties:
- *         id:
- *           type: integer
- *           minimum: 1
- *           description: Identificador del producto. Lo asigna la base de datos sola (SERIAL).
- *           example: 1
- *         name:
- *           type: string
- *           minLength: 3
- *           description: Nombre del producto. Tiene que tener al menos 3 caracteres.
- *           example: Gorra
- *         price:
- *           description: Precio mayor a 0. Al crear o editar se manda como número. En la respuesta, Postgres suele devolverlo como texto (por ejemplo "15.00").
- *           oneOf:
- *             - type: number
- *               minimum: 0
- *               exclusiveMinimum: true
- *               example: 15
- *             - type: string
- *               example: "15.00"
- *         image:
- *           type: string
- *           description: URL de la imagen del producto.
- *           example: https://picsum.photos/400/300
- *     ProductInput:
- *       type: object
- *       required: [name, price, image]
- *       properties:
- *         name:
- *           type: string
- *           minLength: 3
- *           description: Nombre del producto. Tiene que ser un texto de al menos 3 caracteres.
- *           example: Gorra
- *         price:
- *           type: number
- *           minimum: 0
- *           exclusiveMinimum: true
- *           description: Precio del producto. Tiene que ser un número mayor a 0.
- *           example: 15
- *         image:
- *           type: string
- *           description: URL de la imagen del producto.
- *           example: https://picsum.photos/400/300
- *   responses:
- *     ErrorValidacion:
- *       description: >
- *         El body está mal armado o el id no es un entero positivo.
- *         El mensaje viene como texto plano, no como JSON.
- *         Ejemplos: `name, price e image son obligatorios`,
- *         `name debe ser un texto de al menos 3 caracteres`,
- *         `price debe ser un número mayor a 0`,
- *         `image debe ser un texto`, `falta el body`.
- *         Si el id de la URL es inválido, Express responde `Bad Request`.
- *       content:
- *         text/plain:
- *           schema:
- *             type: string
- *           examples:
- *             precio:
- *               summary: Precio inválido
- *               value: price debe ser un número mayor a 0
- *             nombre:
- *               summary: Nombre muy corto
- *               value: name debe ser un texto de al menos 3 caracteres
- *             faltanCampos:
- *               summary: Faltan campos
- *               value: name, price e image son obligatorios
- *             idInvalido:
- *               summary: Id inválido en la URL
- *               value: Bad Request
- *     IdInvalido:
- *       description: El id de la URL no es un número entero positivo. Express responde el texto `Bad Request`.
- *       content:
- *         text/plain:
- *           schema:
- *             type: string
- *             example: Bad Request
- *     NoEncontrado:
- *       description: No hay un producto con ese id. Express responde el texto `Not Found`.
- *       content:
- *         text/plain:
- *           schema:
- *             type: string
- *             example: Not Found
- */
 
 // Pendiente de repasar en clase: interaccion con db en POST, PUT y DELETE
 
@@ -185,70 +46,11 @@ function validarProducto(body) {
   return null;
 }
 
-/**
- * @openapi
- * /products:
- *   get:
- *     tags: [Productos]
- *     summary: Listar productos
- *     description: Devuelve todos los productos, ordenados por id. Ojo, la lista viene adentro de `results`.
- *     operationId: listarProductos
- *     responses:
- *       200:
- *         description: Lista de productos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               required: [results]
- *               properties:
- *                 results:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/Product"
- *             example:
- *               results:
- *                 - id: 1
- *                   name: Teclado Mecánico
- *                   price: "89.99"
- *                   image: https://picsum.photos/seed/keyboard/400/300
- *                 - id: 2
- *                   name: Mouse Inalámbrico
- *                   price: "29.50"
- *                   image: https://picsum.photos/seed/mouse/400/300
- */
 app.get("/products", async (req, res) => {
   const result = await db.query("SELECT * FROM products ORDER BY id");
   res.json({ results: result.rows });
 });
 
-/**
- * @openapi
- * /products/{id}:
- *   get:
- *     tags: [Productos]
- *     summary: Ver detalle de un producto
- *     description: Devuelve un solo producto, el que tiene ese `id`. Si el id no es un entero positivo responde `400`. Si no existe, `404`.
- *     operationId: detalleProducto
- *     parameters:
- *       - $ref: "#/components/parameters/ProductId"
- *     responses:
- *       200:
- *         description: El producto pedido
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/Product"
- *             example:
- *               id: 1
- *               name: Teclado Mecánico
- *               price: "89.99"
- *               image: https://picsum.photos/seed/keyboard/400/300
- *       400:
- *         $ref: "#/components/responses/IdInvalido"
- *       404:
- *         $ref: "#/components/responses/NoEncontrado"
- */
 app.get("/products/:id", async (req, res) => {
   const id = parseId(req.params.id);
 
@@ -267,48 +69,6 @@ app.get("/products/:id", async (req, res) => {
   res.json(result.rows[0]);
 });
 
-/**
- * @openapi
- * /products:
- *   post:
- *     tags: [Productos]
- *     summary: Crear producto
- *     description: Crea un producto nuevo. Hay que mandar `name`, `price` e `image` en el body, en JSON. La base le asigna el `id` sola. Si algo del body está mal, responde `400` con un mensaje en texto plano.
- *     operationId: crearProducto
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: "#/components/schemas/ProductInput"
- *           examples:
- *             valido:
- *               summary: Producto válido
- *               value:
- *                 name: Gorra
- *                 price: 15
- *                 image: https://picsum.photos/400/300
- *             precioInvalido:
- *               summary: Precio inválido (responde 400)
- *               value:
- *                 name: Gorra
- *                 price: -15
- *                 image: https://picsum.photos/400/300
- *     responses:
- *       201:
- *         description: Producto creado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/Product"
- *             example:
- *               id: 11
- *               name: Gorra
- *               price: "15.00"
- *               image: https://picsum.photos/400/300
- *       400:
- *         $ref: "#/components/responses/ErrorValidacion"
- */
 app.post("/products", async (req, res) => {
   const error = validarProducto(req.body);
 
@@ -325,43 +85,6 @@ app.post("/products", async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
-/**
- * @openapi
- * /products/{id}:
- *   put:
- *     tags: [Productos]
- *     summary: Editar producto
- *     description: Reemplaza name, price e image del producto con ese `id`. Hay que mandar los tres campos. Si el id no existe responde `404`. Si el body o el id están mal, `400`.
- *     operationId: editarProducto
- *     parameters:
- *       - $ref: "#/components/parameters/ProductId"
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: "#/components/schemas/ProductInput"
- *           example:
- *             name: Gorra de visera
- *             price: 18
- *             image: https://picsum.photos/400/300
- *     responses:
- *       200:
- *         description: Producto actualizado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/Product"
- *             example:
- *               id: 1
- *               name: Gorra de visera
- *               price: "18.00"
- *               image: https://picsum.photos/400/300
- *       400:
- *         $ref: "#/components/responses/ErrorValidacion"
- *       404:
- *         $ref: "#/components/responses/NoEncontrado"
- */
 app.put("/products/:id", async (req, res) => {
   const id = parseId(req.params.id);
 
@@ -390,33 +113,6 @@ app.put("/products/:id", async (req, res) => {
   res.json(result.rows[0]);
 });
 
-/**
- * @openapi
- * /products/{id}:
- *   delete:
- *     tags: [Productos]
- *     summary: Eliminar producto
- *     description: Borra el producto con ese `id` y lo devuelve en la respuesta. Si el id no es un entero positivo responde `400`. Si no existe, `404`.
- *     operationId: eliminarProducto
- *     parameters:
- *       - $ref: "#/components/parameters/ProductId"
- *     responses:
- *       200:
- *         description: Producto borrado (viene el producto que se eliminó)
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/Product"
- *             example:
- *               id: 11
- *               name: Gorra
- *               price: "15.00"
- *               image: https://picsum.photos/400/300
- *       400:
- *         $ref: "#/components/responses/IdInvalido"
- *       404:
- *         $ref: "#/components/responses/NoEncontrado"
- */
 app.delete("/products/:id", async (req, res) => {
   const id = parseId(req.params.id);
 

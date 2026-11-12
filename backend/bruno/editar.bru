@@ -1,0 +1,23 @@
+meta {
+  name: Editar producto
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/products/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Gorra de visera",
+    "price": 18,
+    "image": "https://picsum.photos/400/300"
+  }
+}

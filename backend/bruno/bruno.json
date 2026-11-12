@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Ricky Fort Merch",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

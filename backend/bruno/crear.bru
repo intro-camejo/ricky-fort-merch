@@ -1,0 +1,23 @@
+meta {
+  name: Crear producto
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/products
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Gorra",
+    "price": 15,
+    "image": "https://picsum.photos/400/300"
+  }
+}
