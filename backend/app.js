@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { readFileSync } from "fs";
 import { db } from "./db/pool.js";
 
 const app = express();
@@ -7,6 +9,9 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+const openapi = JSON.parse(readFileSync(new URL("./openapi.json", import.meta.url), "utf8"));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 // Pendiente de repasar en clase: interaccion con db en POST, PUT y DELETE
 
