@@ -16,13 +16,53 @@
         <a href="listado.html" class="active">Productos</a>
     </div>
     <div class="container">
-        <h1>Listado</h1>
+        <div class="row">
+            <h1>Listado</h1>
+            <button onclick="abrirModalDeCarga()"> + </button>
+        </div>
         <div class="card-list" id="productos"></div>
     </div>
 
     <div class="footer">
         <p>En honor a <a href="https://www.infobae.com/resizer/v2/VLMJYISJTRHNJOOAGOQAN3EDFM.jpg?auth=d3f3f1488daa9e029e0d4e89626ca1251760cbf52802d9e9a3b6ae70788a471e&smart=true&width=992&height=579&quality=85" target="_blank">él</a></p>
     </div>
+
+
+    <dialog id="modalDeCarga">
+        <form method="dialog" id="formDeCarga">
+            <div class="formContainer" >
+            <h2>
+                Ingrese producto
+            </h2>
+            <div>
+             <label for="nombre">nombre</label>
+             <input id="nombre" name="nombre" required placeholder="Don Santur"/>
+            </div>
+
+             <div>
+             <label for="precio">precio</label>
+             <input type="number" id="precio" name="Nombre" required/>
+            </div>
+
+            <div>
+             <label for="imagen">imagen</label>
+             <input type="text" id="imagen" name="imagen" required/>
+            </div>
+
+            <button type="submit">
+                Guardar
+            </button>
+         </div>
+        </form>
+    </dialog>
+
+    <dialog id="loader">
+        <h2>
+            Cargando...
+        </h2>
+        <image src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" alt="Cargando..."/>
+    </dialog>
+
 
     <script src="scripts.js"></script>
 </body>

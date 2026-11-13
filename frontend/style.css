@@ -74,3 +74,31 @@ body {
 .parrafo {
     font-style: italic;
 }
+
+.row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.row h1 {
+    display: inline-block;
+}
+
+.row button {
+    margin-left: 10px;
+    max-height: 30px;
+    border-radius: 5px;
+}
+
+.formContainer {
+    display: flex ;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 250px;
+}
+
+.formContainer div {
+    display: flex ;
+    flex-direction: row;
+    justify-content: space-between;
+}
