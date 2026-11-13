@@ -21,10 +21,6 @@ function agregarUnProducto(id, urlImagen, nombre, precio){
     cardPrecio.className = "card-price";
     cardPrecio.innerText = `Precio: $${precio}`;
 
-    // card.appendChild(cardImagen);
-    // card.appendChild(cardLinita);
-    // card.appendChild(cardNombre);
-    // card.appendChild(cardPrecio);
     card.append(cardImagen, cardLinita, cardNombre, cardPrecio);
 
     productos.appendChild(card);
@@ -40,6 +36,48 @@ async function cargarProductos(){
         productos.forEach(producto => {
             agregarUnProducto(producto.id, producto.image, producto.name, producto.price);
         });
+}
+
+
+const abrirModalDeCarga = () => {
+    const dialog = document.getElementById("modalDeCarga");
+    dialog.showModal();
+}
+
+
+const form = document.getElementById("formDeCarga");
+
+const postProducto = async (event) => {
+ const nombre = event.target.nombre.value
+ const precio = event.target.precio.value
+ const imagen = event.target.imagen.value
+
+ mostrarLoader();
+const data = await fetch("http://localhost:3000/products/", {
+    method: "POST",
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body : JSON.stringify({ name : nombre, 
+          price : precio,
+         image : imagen })
+  });
+  const producto = await data.json()
+ ocultarLoader();
+  agregarUnProducto(producto.id, producto.image, producto.name, producto.price);
+}
+
+
+form.addEventListener("submit", postProducto);
+
+const mostrarLoader = () => {
+    const loader = document.getElementById("loader");
+    loader.showModal();
+}
+
+const ocultarLoader = () => {
+    const loader = document.getElementById("loader");
+    loader.close();
 }
 
 cargarProductos();
