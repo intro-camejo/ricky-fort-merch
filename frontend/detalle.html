@@ -19,9 +19,38 @@
         <h1>Detalle</h1>
         <h2 id="producto-nombre"></h2>
         <button id="producto-eliminar">Eliminar</button>
+        <button id="producto-editar">Editar</button>
         <p id="producto-precio"></p>
         <img id="producto-imagen">
     </div>
+
+    <dialog id="dialogo-editar">
+        <form method="dialog" id="form-editar">
+            <div class="formContainer" >
+            <h2>
+                Editar producto
+            </h2>
+            <div>
+             <label for="nombre">nombre</label>
+             <input id="nombre" name="nombre" required placeholder="Don Santur"/>
+            </div>
+
+             <div>
+             <label for="precio">precio</label>
+             <input type="number" id="precio" name="precio" step="0.01" required/>
+            </div>
+
+            <div>
+             <label for="imagen">imagen</label>
+             <input type="text" id="imagen" name="imagen" required/>
+            </div>
+
+            <button type="submit">
+                Guardar
+            </button>
+         </div>
+        </form>
+    </dialog>
 
     <div class="footer">
         <p>En honor a <a href="https://www.infobae.com/resizer/v2/VLMJYISJTRHNJOOAGOQAN3EDFM.jpg?auth=d3f3f1488daa9e029e0d4e89626ca1251760cbf52802d9e9a3b6ae70788a471e&smart=true&width=992&height=579&quality=85" target="_blank">él</a></p>
@@ -41,11 +70,19 @@
             console.log(producto);
             // 3. mostrar la info en el DOM
             let nombre = document.getElementById("producto-nombre");
+            const inputNombre = document.getElementById("nombre");
             nombre.innerText = producto.name;
+            inputNombre.value = producto.name;
+
             let precio = document.getElementById("producto-precio");
+            const inputPrecio = document.getElementById("precio");
             precio.innerText = producto.price;
+            inputPrecio.value = producto.price;
+
             let imagen = document.getElementById("producto-imagen");
+            const inputImagen = document.getElementById("imagen");
             imagen.src = producto.image;
+            inputImagen.value = producto.image;
         }
 
         const botonEliminar = document.getElementById("producto-eliminar");
@@ -62,6 +99,38 @@
             alert("Error al eliminar el producto");
           }
         });
+
+        const botonEditar = document.getElementById("producto-editar");
+        const dialogoEditar = document.getElementById("dialogo-editar");
+        botonEditar.addEventListener("click", () => {
+          dialogoEditar.showModal();
+        });
+
+        const formEditar = document.getElementById("form-editar");
+        formEditar.addEventListener("submit", async (event) => {
+          const nombre = event.target.nombre.value
+          const precio = event.target.precio.value
+          const imagen = event.target.imagen.value
+
+          const response = await fetch(`http://localhost:3000/products/${id}`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: nombre,
+              price: precio,
+              image: imagen
+            })
+          });
+
+          if (response.ok) {
+            alert("Producto actualizado correctamente");
+            window.location.reload();
+          } else {
+            alert("Error al actualizar el producto, intente nuevamente");
+          }
+        })
      </script>
 </body>
 </html>
