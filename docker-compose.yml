@@ -2,17 +2,17 @@ services:
   db:
     image: postgres:18
     environment:
-      POSTGRES_USER: ricky
-      POSTGRES_PASSWORD: comandante
-      POSTGRES_DB: merch
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - pg-data:/var/lib/postgresql
       - ./backend/db/schemas.sql:/docker-entrypoint-initdb.d/01-schemas.sql:ro
       - ./backend/db/seeds.sql:/docker-entrypoint-initdb.d/02-seeds.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ricky -d merch"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,6 +23,10 @@ services:
       - "3000:3000"
     environment:
       DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
     depends_on:
       db:
         condition: service_healthy

@@ -4,13 +4,19 @@ Proyecto de integración de la materia Intro al desarrollo de software (cátedra
 
 ## Cómo levantar todo
 
-Desde la raíz del repo:
+Desde la raíz del repo, copiá el archivo de ejemplo de variables de entorno (y, si querés, cambiá los valores):
+
+```bash
+cp .env.example .env
+```
+
+El archivo `.env` no se sube a git: ahí van el usuario, la contraseña y el nombre de la base.
+
+Después, levantá la base, el backend y el frontend juntos:
 
 ```bash
 docker compose up --build
 ```
-
-Esto levanta la base, el backend y el frontend juntos.
 
 - Front: [http://localhost:8080](http://localhost:8080) (el inicio es `index.html`; el listado de productos está en [http://localhost:8080/listado.html](http://localhost:8080/listado.html))
 - Back: [http://localhost:3000](http://localhost:3000)
@@ -25,9 +31,10 @@ Eso borra el volumen con los datos, y la próxima vez se vuelven a crear las tab
 
 ## Alternativa: levantar el back en local
 
-Si preferís correr el backend en tu máquina (por ejemplo, para usar `npm run dev` y que se reinicie al guardar), podés levantar solo la base:
+Si preferís correr el backend en tu máquina (por ejemplo, para usar `npm run dev` y que se reinicie al guardar), también necesitás el `.env` en la raíz. Después levantá solo la base:
 
 ```bash
+cp .env.example .env
 docker compose up db -d
 ```
 
