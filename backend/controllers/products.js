@@ -1,5 +1,5 @@
 import express from "express";
-import { db } from "../db/pool.js";
+import { editProduct, getProduct, getProducts, newProduct, removeProduct } from "../db/products.js";
 
 export const router = express.Router();
 
@@ -40,8 +40,8 @@ function validarProducto(body) {
 }
 
 router.get("/", async (req, res) => {
-  const result = await db.query("SELECT * FROM products ORDER BY id");
-  res.json({ results: result.rows });
+  const products = await getProducts();
+  res.json({ results: products });
 });
 
 router.get("/:id", async (req, res) => {
@@ -52,14 +52,14 @@ router.get("/:id", async (req, res) => {
     return;
   }
 
-  const result = await db.query("SELECT * FROM products WHERE id = $1", [id]);
+  const product = await getProduct(id);
 
-  if (result.rowCount === 0) {
+  if (product === undefined) {
     res.sendStatus(404);
     return;
   }
 
-  res.json(result.rows[0]);
+  res.json(product);
 });
 
 router.post("/", async (req, res) => {
@@ -70,12 +70,9 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  const result = await db.query(
-    "INSERT INTO products (name, price, image) VALUES ($1, $2, $3) RETURNING *",
-    [req.body.name, Number(req.body.price), req.body.image]
-  );
+  const product = await newProduct(req.body.name, Number(req.body.price), req.body.image);
 
-  res.status(201).json(result.rows[0]);
+  res.status(201).json(product);
 });
 
 router.put("/:id", async (req, res) => {
@@ -93,17 +90,14 @@ router.put("/:id", async (req, res) => {
     return;
   }
 
-  const result = await db.query(
-    "UPDATE products SET name = $1, price = $2, image = $3 WHERE id = $4 RETURNING *",
-    [req.body.name, Number(req.body.price), req.body.image, id]
-  );
+  const product = await editProduct(id, req.body.name, Number(req.body.price), req.body.image);
 
-  if (result.rowCount === 0) {
+  if (product === undefined) {
     res.sendStatus(404);
     return;
   }
 
-  res.json(result.rows[0]);
+  res.json(product);
 });
 
 router.delete("/:id", async (req, res) => {
@@ -114,12 +108,12 @@ router.delete("/:id", async (req, res) => {
     return;
   }
 
-  const result = await db.query("DELETE FROM products WHERE id = $1 RETURNING *", [id]);
+  const product = await removeProduct(id);
 
-  if (result.rowCount === 0) {
+  if (product === undefined) {
     res.sendStatus(404);
     return;
   }
 
-  res.json(result.rows[0]);
+  res.json(product);
 });
