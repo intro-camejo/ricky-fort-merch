@@ -1,3 +1,4 @@
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
 function agregarUnProducto(id, urlImagen, nombre, precio){
     let productos = document.getElementById("productos");
@@ -26,9 +27,9 @@ function agregarUnProducto(id, urlImagen, nombre, precio){
     productos.appendChild(card);
 }
 
-async function cargarProductos(){
+async function cargarProductos() {
     // 1. pedir informacion a la url de bilbo
-    let data = await fetch("http://localhost:3000/products/");
+    let data = await fetch(`${BASE_URL}/products/`);
     // 2. pasalo a json
     data = await data.json();
     // 3. cargarla en nuestra web
@@ -58,7 +59,7 @@ const data = await fetch("http://localhost:3000/products/", {
     headers: {
         'Content-Type': 'application/json'
     },
-    body : JSON.stringify({ name : nombre, 
+    body : JSON.stringify({ name : nombre,
           price : precio,
          image : imagen })
   });
