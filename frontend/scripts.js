@@ -1,5 +1,3 @@
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
-
 function agregarUnProducto(id, urlImagen, nombre, precio){
     let productos = document.getElementById("productos");
 
@@ -29,7 +27,7 @@ function agregarUnProducto(id, urlImagen, nombre, precio){
 
 async function cargarProductos() {
     // 1. pedir informacion a la url de bilbo
-    let data = await fetch(`${BASE_URL}/products/`);
+    let data = await fetch(`${window.BASE_URL}/products/`);
     // 2. pasalo a json
     data = await data.json();
     // 3. cargarla en nuestra web
